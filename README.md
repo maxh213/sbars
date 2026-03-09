@@ -12,14 +12,18 @@ Inspired by the original Sims 1 needs panel:
 
 ## Install
 
+### Arch Linux (AUR)
+
 ```bash
-go install sbars@latest
+paru -S sbars
+# or
+yay -S sbars
 ```
 
-Or build from source:
+### From source
 
 ```bash
-git clone https://github.com/yourusername/sbars.git
+git clone https://github.com/maxh213/sbars.git
 cd sbars
 go build -o sbars
 ```
