@@ -1,6 +1,6 @@
 # Maintainer: Max Harris <maxh213@users.noreply.github.com>
 pkgname=sbars
-pkgver=0.1.1
+pkgver=0.1.2
 pkgrel=1
 pkgdesc="A Sims-style needs tracker TUI for your terminal"
 arch=('x86_64' 'aarch64')

@@ -184,7 +184,10 @@ func (m model) View() string {
 }
 
 func (m model) viewDisplay() string {
-	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#0E1550")).Width(m.width).Align(lipgloss.Center).Render("Needs")
+	// Center "Needs" over the grid: each column is labelWidth(11) + 1 + barWidth(20) + 1 + 4("x/10") = 37, gap=4, total ~78
+	gridWidth := 2*(11+1+20+1+4) + 4
+	pad := (gridWidth - 5) / 2 // 5 = len("Needs")
+	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#0E1550")).Render(strings.Repeat(" ", pad) + "Needs")
 	grid := RenderGrid(m.values, 20)
 	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#4A5080"))
 	updated := dimStyle.Render(fmt.Sprintf("Last updated: %s", m.lastUpdate.Format("2006-01-02 15:04")))
