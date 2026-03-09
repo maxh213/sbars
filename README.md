@@ -1,5 +1,9 @@
 # sbars
 
+[![AUR version](https://img.shields.io/aur/version/sbars)](https://aur.archlinux.org/packages/sbars)
+[![Go](https://img.shields.io/badge/Go-1.20+-00ADD8?logo=go&logoColor=white)](https://go.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Sims-style needs tracker for your terminal. Track 8 life needs (Hunger, Comfort, Bladder, Energy, Fun, Social, Hygiene, Environment) with a TUI inspired by The Sims 1. For those of us who forget to take care of themselves but are pretty good at taking care of a virtual sim. It's mainly to be used as a reminder to check in with your own sims bars throughout the day.
 
 Btw this is vibe coded cause it's a very small and quick project which should only be run locally and the only thing it does is save json to your machine for history. 
