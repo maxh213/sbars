@@ -54,11 +54,19 @@ type History struct {
 }
 
 func DefaultPath() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
+	dataDir := os.Getenv("XDG_DATA_HOME")
+	if dataDir == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		dataDir = filepath.Join(home, ".local", "share")
+	}
+	dir := filepath.Join(dataDir, "sbars")
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
 	}
-	return filepath.Join(home, ".sbars.json"), nil
+	return filepath.Join(dir, "history.json"), nil
 }
 
 func Load(path string) (History, error) {

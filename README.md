@@ -52,7 +52,7 @@ sbars will automatically prompt you to record your needs if an hour has passed s
 
 ## Data
 
-Entries are saved as JSON to `~/.sbars.json`.
+Entries are saved as JSON to `~/.local/share/sbars/history.json` (respects `$XDG_DATA_HOME`).
 
 ## Stack
 
