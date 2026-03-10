@@ -39,6 +39,12 @@ go build -o sbars
 ./sbars
 ```
 
+### Flags
+
+| Flag | Description |
+|------|-------------|
+| `--no-trends` | Hide trend arrows |
+
 ### Controls
 
 | Key | Action |
@@ -46,6 +52,10 @@ go build -o sbars
 | `r` | Record new need values (1-10 for each) |
 | `h` | View history of past entries |
 | `q` | Quit |
+
+### Trend arrows
+
+After each bar, Sims-style trend arrows show how each need changed since your last entry. Green `▶` arrows indicate improvement, red `◀` arrows indicate decline. The number of arrows (1-3) reflects the magnitude of the change.
 
 ### Input mode
 

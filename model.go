@@ -29,6 +29,9 @@ func tickCmd() tea.Cmd {
 type model struct {
 	mode          mode
 	values        [NeedCount]int
+	prevValues    [NeedCount]int
+	hasPrev       bool
+	showTrends    bool
 	inputIndex    int
 	inputBuf      string
 	inputValues   [NeedCount]int
@@ -43,16 +46,26 @@ type model struct {
 
 func NewModel(path string) model {
 	h, _ := Load(path)
-	var values [NeedCount]int
+	var values, prevValues [NeedCount]int
+	var lastUpdate time.Time
+	hasPrev := false
 	if len(h.Entries) > 0 {
 		values = h.Entries[len(h.Entries)-1].Values
+		lastUpdate = h.Entries[len(h.Entries)-1].Timestamp
+		if len(h.Entries) > 1 {
+			prevValues = h.Entries[len(h.Entries)-2].Values
+			hasPrev = true
+		}
 	}
 	return model{
 		mode:        modeDisplay,
 		values:      values,
+		prevValues:  prevValues,
+		hasPrev:     hasPrev,
+		showTrends:  true,
 		history:     h,
 		historyPath: path,
-		lastUpdate:  time.Now(),
+		lastUpdate:  lastUpdate,
 		width:       80,
 		height:      24,
 	}
@@ -71,7 +84,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tickMsg:
 		elapsed := time.Since(m.lastUpdate)
-		if m.mode == modeDisplay && elapsed >= time.Hour {
+		if m.mode == modeDisplay && !m.lastUpdate.IsZero() && elapsed >= time.Hour {
 			m.mode = modeInput
 			m.inputIndex = 0
 			m.inputBuf = ""
@@ -132,7 +145,9 @@ func (m model) updateInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				Timestamp: time.Now(),
 				Values:    m.inputValues,
 			}
+			m.prevValues = m.values
 			m.history = AppendEntry(m.history, entry)
+			m.hasPrev = len(m.history.Entries) >= 2
 			m.values = m.inputValues
 			m.lastUpdate = time.Now()
 			_ = Save(m.historyPath, m.history)
@@ -188,9 +203,17 @@ func (m model) viewDisplay() string {
 	gridWidth := 2*(11+1+20+1+4) + 4
 	pad := (gridWidth - 5) / 2 // 5 = len("Needs")
 	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#0E1550")).Render(strings.Repeat(" ", pad) + "Needs")
-	grid := RenderGrid(m.values, 20)
+	prev := m.values // no arrows if no previous entry
+	if m.hasPrev && m.showTrends {
+		prev = m.prevValues
+	}
+	grid := RenderGrid(m.values, prev, 20)
 	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#4A5080"))
-	updated := dimStyle.Render(fmt.Sprintf("Last updated: %s", m.lastUpdate.Format("2006-01-02 15:04")))
+	updatedText := "Last updated: never"
+	if !m.lastUpdate.IsZero() {
+		updatedText = fmt.Sprintf("Last updated: %s", m.lastUpdate.Format("02/01/2006 15:04:05"))
+	}
+	updated := dimStyle.Render(updatedText)
 	help := dimStyle.Render("[r] record  [h] history  [q] quit")
 
 	content := title + "\n\n" + grid + "\n\n" + updated + "\n\n" + help
@@ -237,7 +260,7 @@ func (m model) viewHistory() string {
 	entries := m.history.Entries
 	for i := len(entries) - 1 - m.historyScroll; i >= 0; i-- {
 		e := entries[i]
-		row := fmt.Sprintf("  %-20s", e.Timestamp.Format("2006-01-02 15:04"))
+		row := fmt.Sprintf("  %-20s", e.Timestamp.Format("02/01/2006 15:04:05"))
 		for _, v := range e.Values {
 			row += fmt.Sprintf(" %4d", v)
 		}

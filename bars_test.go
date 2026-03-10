@@ -75,9 +75,38 @@ func TestRenderBar_FilledAndEmpty(t *testing.T) {
 	}
 }
 
+func TestRenderTrend_Up(t *testing.T) {
+	trend := stripAnsi(RenderTrend(3))
+	if strings.Count(trend, "▶") != 3 {
+		t.Errorf("trend(+3) = %q, want 3 arrows", trend)
+	}
+}
+
+func TestRenderTrend_Down(t *testing.T) {
+	trend := stripAnsi(RenderTrend(-2))
+	if strings.Count(trend, "◀") != 2 {
+		t.Errorf("trend(-2) = %q, want 2 arrows", trend)
+	}
+}
+
+func TestRenderTrend_Zero(t *testing.T) {
+	trend := RenderTrend(0)
+	if trend != "" {
+		t.Errorf("trend(0) = %q, want empty", trend)
+	}
+}
+
+func TestRenderTrend_CapsAt3(t *testing.T) {
+	trend := stripAnsi(RenderTrend(7))
+	if strings.Count(trend, "▶") != 3 {
+		t.Errorf("trend(+7) = %q, want max 3 arrows", trend)
+	}
+}
+
 func TestRenderGrid_HasAllLabels(t *testing.T) {
 	values := [NeedCount]int{5, 5, 5, 5, 5, 5, 5, 5}
-	grid := stripAnsi(RenderGrid(values, 20))
+	prev := [NeedCount]int{5, 5, 5, 5, 5, 5, 5, 5}
+	grid := stripAnsi(RenderGrid(values, prev, 20))
 
 	for _, name := range NeedNames() {
 		if !strings.Contains(grid, name) {
@@ -88,7 +117,8 @@ func TestRenderGrid_HasAllLabels(t *testing.T) {
 
 func TestRenderGrid_TwoColumns(t *testing.T) {
 	values := [NeedCount]int{5, 5, 5, 5, 5, 5, 5, 5}
-	grid := RenderGrid(values, 20)
+	prev := [NeedCount]int{5, 5, 5, 5, 5, 5, 5, 5}
+	grid := RenderGrid(values, prev, 20)
 	// 4 rows separated by blank lines = 7 lines total
 	lines := strings.Split(grid, "\n")
 	if len(lines) != 7 {

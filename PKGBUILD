@@ -8,7 +8,7 @@ url="https://github.com/maxh213/sbars"
 license=('MIT')
 makedepends=('go')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/maxh213/sbars/archive/v$pkgver.tar.gz")
-sha256sums=('d10f0f7a9851b8ab2f251925150bcbe30196a671d67fb1d1751f63e4a32a9d60')
+sha256sums=('fc6e8eb0b1bb5a783e3fecd401c0f4e829076d04f5acdd65cd63fe7bb0e65233')
 
 build() {
   cd "$pkgname-$pkgver"

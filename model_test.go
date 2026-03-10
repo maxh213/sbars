@@ -245,11 +245,77 @@ func TestView_DisplayContainsNeedNames(t *testing.T) {
 func TestView_DisplayShowsLastUpdated(t *testing.T) {
 	m := testModel(t)
 	view := m.View()
-	if !strings.Contains(view, "Last updated") {
-		t.Error("display view missing last updated timestamp")
+	if !strings.Contains(view, "Last updated: never") {
+		t.Error("empty history should show 'never'")
 	}
-	if !strings.Contains(view, m.lastUpdate.Format("2006-01-02")) {
-		t.Error("display view missing formatted date")
+
+	m2 := testModelWithHistory(t)
+	view2 := m2.View()
+	if !strings.Contains(view2, "Last updated:") {
+		t.Error("display view missing last updated")
+	}
+	if strings.Contains(view2, "never") {
+		t.Error("should show timestamp, not 'never'")
+	}
+}
+
+func TestView_DisplayNoTrendsOnFirstEntry(t *testing.T) {
+	m := testModel(t)
+	// Record first entry
+	m.mode = modeInput
+	for i := 0; i < int(NeedCount); i++ {
+		m.inputBuf = "5"
+		result := sendSpecialKey(m, tea.KeyEnter)
+		m = result.(model)
+	}
+	view := m.View()
+	if strings.Contains(view, "▶") || strings.Contains(view, "◀") {
+		t.Error("should not show trend arrows on first entry")
+	}
+}
+
+func TestView_DisplayShowsTrendsAfterSecondEntry(t *testing.T) {
+	m := testModel(t)
+	// First entry: all 3s
+	m.mode = modeInput
+	for i := 0; i < int(NeedCount); i++ {
+		m.inputBuf = "3"
+		result := sendSpecialKey(m, tea.KeyEnter)
+		m = result.(model)
+	}
+	// Second entry: all 7s
+	m = sendKey(m, "r").(model)
+	for i := 0; i < int(NeedCount); i++ {
+		m.inputBuf = "7"
+		result := sendSpecialKey(m, tea.KeyEnter)
+		m = result.(model)
+	}
+	view := m.View()
+	if !strings.Contains(view, "▶") {
+		t.Error("should show upward trend arrows after second entry")
+	}
+}
+
+func TestView_DisplayNoTrendsWhenDisabled(t *testing.T) {
+	m := testModel(t)
+	// First entry
+	m.mode = modeInput
+	for i := 0; i < int(NeedCount); i++ {
+		m.inputBuf = "3"
+		result := sendSpecialKey(m, tea.KeyEnter)
+		m = result.(model)
+	}
+	// Second entry
+	m = sendKey(m, "r").(model)
+	for i := 0; i < int(NeedCount); i++ {
+		m.inputBuf = "7"
+		result := sendSpecialKey(m, tea.KeyEnter)
+		m = result.(model)
+	}
+	m.showTrends = false
+	view := m.View()
+	if strings.Contains(view, "▶") || strings.Contains(view, "◀") {
+		t.Error("should not show trend arrows when showTrends is false")
 	}
 }
 

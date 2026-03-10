@@ -55,13 +55,31 @@ func textStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Background(panelBg).Foreground(panelFg).Bold(true)
 }
 
-func RenderLabeledBar(label string, value, barWidth, labelWidth int) string {
-	paddedLabel := fmt.Sprintf("%-*s", labelWidth, label)
-	score := fmt.Sprintf("%d/10", value)
-	return textStyle().Render(paddedLabel+" ") + RenderBar(value, barWidth) + textStyle().Render(" "+score)
+func RenderTrend(delta int) string {
+	if delta == 0 {
+		return ""
+	}
+	abs := delta
+	arrow := "▶"
+	color := lipgloss.Color("#30B020") // green for up
+	if delta < 0 {
+		abs = -delta
+		arrow = "◀"
+		color = lipgloss.Color("#CC3333") // red for down
+	}
+	if abs > 3 {
+		abs = 3
+	}
+	return textStyle().Render(" ") + lipgloss.NewStyle().Foreground(color).Background(panelBg).Render(strings.Repeat(arrow, abs))
 }
 
-func RenderGrid(values [NeedCount]int, barWidth int) string {
+func RenderLabeledBar(label string, value, delta, barWidth, labelWidth int) string {
+	paddedLabel := fmt.Sprintf("%-*s", labelWidth, label)
+	score := fmt.Sprintf("%d/10", value)
+	return textStyle().Render(paddedLabel+" ") + RenderBar(value, barWidth) + textStyle().Render(" "+score) + RenderTrend(delta)
+}
+
+func RenderGrid(values, prev [NeedCount]int, barWidth int) string {
 	names := NeedNames()
 	labelWidth := 0
 	for _, n := range names {
@@ -74,8 +92,8 @@ func RenderGrid(values [NeedCount]int, barWidth int) string {
 	half := int(NeedCount) / 2
 	lines := make([]string, half)
 	for i := 0; i < half; i++ {
-		left := RenderLabeledBar(names[i], values[i], barWidth, labelWidth)
-		right := RenderLabeledBar(names[i+half], values[i+half], barWidth, labelWidth)
+		left := RenderLabeledBar(names[i], values[i], values[i]-prev[i], barWidth, labelWidth)
+		right := RenderLabeledBar(names[i+half], values[i+half], values[i+half]-prev[i+half], barWidth, labelWidth)
 		lines[i] = left + ts.Render("    ") + right
 	}
 	return strings.Join(lines, "\n\n")
