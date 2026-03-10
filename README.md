@@ -39,12 +39,6 @@ go build -o sbars
 ./sbars
 ```
 
-### Flags
-
-| Flag | Description |
-|------|-------------|
-| `--no-trends` | Hide trend arrows |
-
 ### Controls
 
 | Key | Action |
@@ -52,6 +46,12 @@ go build -o sbars
 | `r` | Record new need values (1-10 for each) |
 | `h` | View history of past entries |
 | `q` | Quit |
+
+### Flags
+
+| Flag | Description |
+|------|-------------|
+| `--no-trends` | Hide trend arrows |
 
 ### Trend arrows
 
